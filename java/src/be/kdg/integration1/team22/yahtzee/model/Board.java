@@ -26,6 +26,7 @@ package be.kdg.integration1.team22.yahtzee.model;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Board {
     public static final String[] MOVE_NAMES = {
@@ -79,6 +80,121 @@ public class Board {
         return possibleMoves;
     }
 
+    public void setPossibleMoves() {
+        possibleMoves.clear();
+        for (String moveName : MOVE_NAMES) {
+            possibleMoves.add(new Score(moveName));
+            setMoveValue(moveName);
+        }
+    }
+
+    private void setMoveValue(String moveName) {
+        int value = 0;
+        switch (moveName) {
+            case "Ones":
+                value = countDice(1);
+                break;
+            case "Twos":
+                value =  countDice(2);
+                break;
+            case "Threes":
+                value = countDice(3);
+                break;
+            case "Fours":
+                value = countDice(4);
+                break;
+            case "Fives":
+                value = countDice(5);
+                break;
+            case "Sixes":
+                value = countDice(6);
+                break;
+            case "Three of a kind":
+                if (dice[0].getValue() == dice[1].getValue()
+                        && dice[1].getValue() == dice[2].getValue()) {
+                    value = getDiceValue();
+                } else if (dice[1].getValue() == dice[2].getValue()
+                        && dice[2].getValue() == dice[3].getValue()) {
+                    value = getDiceValue();
+                } else if (dice[2].getValue() == dice[3].getValue()
+                        && dice[3].getValue() == dice[4].getValue()) {
+                    value = getDiceValue();
+                }
+                break;
+            case "Four of a kind":
+                if (dice[0].getValue() == dice[1].getValue()
+                        && dice[1].getValue() == dice[2].getValue()
+                        && dice[2].getValue() == dice[3].getValue()) {
+                    value = getDiceValue();
+                } else if (dice[1].getValue() == dice[2].getValue()
+                        && dice[2].getValue() == dice[3].getValue()
+                        && dice[3].getValue() == dice[4].getValue()) {
+                    value = getDiceValue();
+                }
+                break;
+            case "Full house":
+                if (dice[0].getValue() == dice[1].getValue()
+                        && dice[1].getValue() == dice[2].getValue()
+                        && dice[3].getValue() == dice[4].getValue()) {
+                    value = 25;
+                } else if (dice[0].getValue() == dice[1].getValue()
+                        && dice[2].getValue() == dice[3].getValue()
+                        && dice[3].getValue() == dice[4].getValue()) {
+                    value = 25;
+                }
+                break;
+            case "Small straight":
+                if (dice[0].getValue() == 1 && dice[1].getValue() == 2
+                        && dice[2].getValue() == 3 && dice[3].getValue() == 4) {
+                    value = 30;
+                } else if (dice[1].getValue() == 2 && dice[2].getValue() == 3
+                        && dice[3].getValue() == 4 && dice[4].getValue() == 5) {
+                    value = 30;
+                } else if (dice[2].getValue() == 3 && dice[3].getValue() == 4
+                        && dice[4].getValue() == 5 && dice[5].getValue() == 6) {
+                    value = 30;
+                }
+                break;
+            case "Large straight":
+                if (dice[0].getValue() == 1 && dice[1].getValue() == 2
+                        && dice[2].getValue() == 3 && dice[3].getValue() == 4
+                        && dice[4].getValue() == 5) {
+                    value = 40;
+                } else if (dice[1].getValue() == 2 && dice[2].getValue() == 3
+                        && dice[3].getValue() == 4 && dice[4].getValue() == 5
+                        && dice[5].getValue() == 6) {
+                    value = 40;
+                }
+                break;
+            case "Yahtzee":
+                if (dice[0].getValue() == dice[1].getValue()
+                        && dice[1].getValue() == dice[2].getValue()
+                        && dice[2].getValue() == dice[3].getValue()
+                        && dice[3].getValue() == dice[4].getValue()) {
+                    value = 50;
+                }
+                break;
+            case "Chance":
+                value = getDiceValue();
+                break;
+        }
+        for (Score score : possibleMoves) {
+            if (score.getMoveName().equals(moveName)) {
+                score.setScore(value);
+            }
+        }
+    }
+
+    private int countDice(int i) {
+        int count = 0;
+        for (Die die : dice) {
+            if (die.getValue() == i) {
+                count++;
+            }
+        }
+        return count * i;
+    }
+
     public int getMoveValue(String moveName) {
         for (Score score : possibleMoves) {
             if (score.getMoveName().equals(moveName)) {
@@ -88,5 +204,19 @@ public class Board {
         return 0;
     }
 
+    public Score[] getMoves() {
+        Score[] moves = new Score[MOVE_NAMES.length];
+        for (int i = 0; i < MOVE_NAMES.length; i++) {
+            moves[i] = new Score(MOVE_NAMES[i]);
+        }
+        return moves;
+    }
 
+    @Override
+    public String toString() {
+        return "Board{" +
+                "dice=" + Arrays.toString(dice) +
+                ", possibleMoves=" + possibleMoves +
+                '}';
+    }
 }

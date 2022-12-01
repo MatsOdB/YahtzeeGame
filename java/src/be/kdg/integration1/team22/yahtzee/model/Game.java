@@ -18,6 +18,7 @@ package be.kdg.integration1.team22.yahtzee.model;
  */
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Game {
     private final Board board = new Board();
@@ -46,4 +47,85 @@ public class Game {
             }
         }
     }
+
+    // start function
+    public void start() {
+        // game loop until all players have filled in all their scores
+        // ask for the amount of players and ask for the names of the players
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to Yahtzee!");
+        System.out.print("Enter the amount of players: ");
+        // repeat question until a valid number is entered
+        int amountOfPlayers = 0;
+        while (amountOfPlayers < 1) {
+            try {
+                amountOfPlayers = scanner.nextInt();
+            } catch (NumberFormatException e) {
+                System.out.print("Please enter a number: ");
+            }
+        }
+        for (int i = 0; i < amountOfPlayers; i++) {
+            System.out.print("Enter the name of player " + (i) + ": ");
+            // wait for the name of the player
+            String name = scanner.next();
+            // add the player to the game
+            addPlayer(name);
+        }
+
+        // start game loop
+        while (!Board.isGameOver(getPlayers().toArray(new Player[players.size()]))) {
+            // loop through all players
+            for (Player player : players) {
+                // Show which player's turn it is
+                System.out.println("It's " + player.getName() + "'s turn!");
+                // ask user to enter a command (roll, score, quit)
+                System.out.print("Enter a command r, s, q (roll, score, quit): ");
+                String command = scanner.next();
+
+                // check if the command is valid
+                while (!command.equals("r") && !command.equals("s") && !command.equals("q")) {
+                    System.out.print("Please enter a valid command!\n Enter a command r, s, q (roll, score, quit): ");
+                    command = scanner.next();
+                }
+
+                // if the command is roll, roll the dice
+                if (command.equals("r")) {
+                    board.rollDice();
+                    board.setPossibleMoves();
+                    System.out.println(board);
+
+                    String move;
+                    do {
+                        // ask user to choose a move to fill in
+                        System.out.print("Enter a move to fill in: ");
+                        move = scanner.nextLine();
+
+                        try {
+                            // fill in the move
+                            board.fillInMove(move, player);
+                            System.out.printf("Added %d to %s's %s score.\n", player.getScore(move), player.getName(), move);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (!board.isMoveFilledIn(move, player));
+                }
+                // if the command is score, show the current player's scores
+                else if (command.equals("s")) {
+                    System.out.println("Your scores:");
+                    for (Score score : player.getScores()) {
+                        System.out.println(score.getMoveName() + ": " + score.getScore());
+                    }
+                }
+                // if the command is quit, quit the game
+                else {
+                    System.out.println("Quitting game...");
+                    return;
+                }
+            }
+        }
+
+    }
 }
+

@@ -50,6 +50,13 @@ public class Player {
         return 0;
     }
 
+    public void initScores() {
+        // add all move names to the scores list and set the score to 0
+        for (String moveName : Board.MOVE_NAMES) {
+            scores.add(new Score(moveName));
+        }
+    }
+
     public void reset() {
         for (Score score : scores) {
             score.reset();
@@ -59,4 +66,16 @@ public class Player {
     @Override public String toString() {
         return name;
     }
+
+    public void setScore(String moveName, int value) {
+        for (Score score : scores) {
+            if (score.getMoveName().equals(moveName)) {
+                score.setScore(value);
+                return;
+            }
+        }
+        // if moveName not found, throw exception
+        throw new IllegalArgumentException("Move name not found: " + moveName);
+    }
+
 }

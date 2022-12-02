@@ -11,8 +11,10 @@ To run the game, the user has to run the YahtzeeApplication class.
 What does the user have to do to run the game?
 </br>
 
-<li> The user should install Java 17 </li>
-<li> User also needs to add postgres database password as an environment variable called "DB_PASSWORD" </li>  
+<ul>
+    <li> The user should install Java 17 </li>
+    <li> User also needs to add postgres database password as an environment variable called "DB_PASSWORD" </li>  
+</ul>
 
 ## Rules
 

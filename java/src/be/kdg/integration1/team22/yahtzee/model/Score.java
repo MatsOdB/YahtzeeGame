@@ -103,9 +103,9 @@ public class Score {
             sb.append(score).append("\n");
         }
 
-        sb.append("Total score: ").append(getTotalScore()).append("\n");
-        sb.append("Bonus: ").append(getBonus()).append("\n");
-        sb.append("Grand total: ").append(getGrandTotal());
+        sb.append(String.format("%-17s %d", "Total score", getTotalScore())).append("\n");
+        sb.append(String.format("%-17s %d", "Bonus", getBonus())).append("\n");
+        sb.append(String.format("%-17s %d", "Grand total", getGrandTotal()));
 
         return sb.toString();
     }
@@ -161,9 +161,9 @@ public class Score {
         @Override
         public String toString() {
             if (score == -1) {
-                return category + ": --";
+                return String.format("%-17s --", category);
             } else {
-                return category + ": " + score;
+                return String.format("%-17s %d", category, score);
             }
         }
     }

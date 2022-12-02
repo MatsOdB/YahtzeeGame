@@ -1,40 +1,38 @@
 package be.kdg.integration1.team22.yahtzee.model;
 
 /*
-    * This class represents a die in the game of Yahtzee.
-    * A die has a value and can be rolled.
-    * A die can be used in a combination of dice.
-    * A die can be used in a score.
-
-    Attributes:
-    * - String[] MOVE_NAMES: the names of the possible moves
-    * - Die[] dice: the dice of the player
-
-    Methods:
-    * + Die()
-    * + roll(): void
-    * + getValue(): int
-    * + toString(): String
-
-    @author Team 22
+    • Die.java: class that represents a die
+        • It should contain a value.
+        • It should contain a method that rolls the die.
+        • It should contain a method that returns the value of the die.
+        • It should contain a method that sets the value of the die.
+        • It should contain a method that returns the value of the die as a string.
  */
 
 public class Die {
     private int value;
 
     public Die() {
-        roll();
+        this.value = 0;
     }
 
     public void roll() {
-        value = (int) (Math.random() * 6) + 1;
+        this.value = (int) (Math.random() * 6) + 1;
     }
 
     public int getValue() {
         return value;
     }
 
-    @Override public String toString() {
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    public String getValueAsString() {
         return String.valueOf(value);
+    }
+
+    public int getFaceValue() {
+        return value;
     }
 }

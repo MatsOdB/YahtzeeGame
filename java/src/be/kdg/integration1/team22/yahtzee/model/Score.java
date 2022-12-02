@@ -1,57 +1,149 @@
 package be.kdg.integration1.team22.yahtzee.model;
 
 /*
-    * This class represents a score in the game of Yahtzee.
-    * A score is a combination of dice values and a score value.
-    * The score value is the number of points you get for that combination.
-    * The combination is determined by the combination type.
-    * A score can be filled in on the board of a player.
+    • Score.java: class that represents a score
+        • It should contain a player ID.
+        • It should contain an array of ScorePerCategory.
+        • It should have a toString method that returns the scores per category of the player.
 
-    Attributes:
-    * - moveName: the name of the move
-    * - score: the score value
-
-    Methods:
-    * + Score(moveName: String)
-    * + getMoveName(): String
-    * + getScore(): int
-    * + setScore(score: int): void
-    * + isScored(): boolean
-    * + reset(): void
-    * + toString(): String
-
-    @author Team 22
+    • ScorePerCategory.java: class that represents a score per category
+        • It should contain a category.
+        • It should contain a score.
+        • It should have a method that returns whether the score is set or not.
  */
 
 public class Score {
-    private final String moveName;
-    private int score;
+    private final int playerId;
+    private final ScorePerCategory[] scores = new ScorePerCategory[Category.values().length];
 
-    public Score(String moveName) {
-        this.moveName = moveName;
+    public Score(int playerId) {
+        this.playerId = playerId;
+        for (int i = 0; i < Category.values().length; i++) {
+            this.scores[i] = new ScorePerCategory(Category.values()[i]);
+        }
     }
 
-    public String getMoveName() {
-        return moveName;
+    public int getPlayerId() {
+        return playerId;
     }
 
-    public int getScore() {
-        return score;
+    public ScorePerCategory[] getScores() {
+        return scores;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public boolean isScoreSet(int category) {
+        return scores[category].isSet();
     }
 
-    public boolean isScored() {
-        return score > 0;
+    public int getScore(int category) {
+        return scores[category].getScore();
     }
 
-    public void reset() {
-        score = 0;
+    public void setScore(int category, int score) {
+        scores[category].setScore(score);
     }
 
-    @Override public String toString() {
-        return String.format("%10s: %3d", moveName, score);
+    public void resetScore(int category) {
+        scores[category].resetScore();
+    }
+
+    public int getTotalScore() {
+        int totalScore = 0;
+        for (ScorePerCategory score : scores) {
+            if (score.getScore() != -1) {
+                totalScore += score.getScore();
+            }
+        }
+        return totalScore;
+    }
+
+    public int getBonus() {
+        int bonus = 0;
+
+        if (getTotalScore() >= 63) {
+            bonus = 35;
+        }
+
+        return bonus;
+    }
+
+    public int getGrandTotal() {
+        return getTotalScore() + getBonus();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Player ID: ").append(playerId).append("\n");
+
+        for (ScorePerCategory score : scores) {
+            sb.append(score).append("\n");
+        }
+
+        sb.append("Total score: ").append(getTotalScore()).append("\n");
+        sb.append("Bonus: ").append(getBonus()).append("\n");
+        sb.append("Grand total: ").append(getGrandTotal());
+
+        return sb.toString();
+    }
+
+    public int getCategoryScore(Category value) {
+        // get the score for the given category
+        for (ScorePerCategory score : scores) {
+            if (score.getCategory() == value) {
+                return score.getScore();
+            }
+        }
+        return 0;
+    }
+
+    public void setScorePerCategory(Category value, int score) {
+        // set the score for the given category
+        for (ScorePerCategory scorePerCategory : scores) {
+            if (scorePerCategory.getCategory() == value) {
+                scorePerCategory.setScore(score);
+            }
+        }
+    }
+
+    private static class ScorePerCategory {
+        private final Category category;
+        private int score;
+
+        public ScorePerCategory(Category category) {
+            this.category = category;
+            this.score = -1;
+        }
+
+        public Category getCategory() {
+            return category;
+        }
+
+        public int getScore() {
+            return score;
+        }
+
+        public void setScore(int score) {
+            this.score = score;
+        }
+
+        public boolean isSet() {
+            return score != 0;
+        }
+
+        public void resetScore() {
+            score = 0;
+        }
+
+        @Override
+        public String toString() {
+            if (score == -1) {
+                return category + ": not set";
+            } else {
+                return category + ": " + score;
+            }
+        }
     }
 }
+

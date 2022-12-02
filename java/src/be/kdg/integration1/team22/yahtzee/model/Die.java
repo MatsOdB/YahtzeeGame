@@ -24,14 +24,6 @@ public class Die {
         return value;
     }
 
-    public void setValue(int value) {
-        this.value = value;
-    }
-
-    public String getValueAsString() {
-        return String.valueOf(value);
-    }
-
     public int getFaceValue() {
         return value;
     }

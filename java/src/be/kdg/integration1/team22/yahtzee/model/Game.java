@@ -12,6 +12,7 @@ package be.kdg.integration1.team22.yahtzee.model;
         • It should contain a method to check if the game is finished.
  */
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Scanner;
@@ -19,7 +20,6 @@ import java.util.Scanner;
 public class Game {
     private final Player[] players;
     private final Score[] scores;
-    private final Scanner scanner = new Scanner(System.in);
     private final GameBoard gameBoard = new GameBoard();
     private int currentPlayerIndex = 0;
     private boolean gameFinished = false;
@@ -29,168 +29,184 @@ public class Game {
         this.scores = scores;
     }
 
-    public Player[] getPlayers() {
-        return players;
-    }
-
-    public Score[] getScores() {
-        return scores;
-    }
-
-    public void startGame() {
+    public void startGame() throws SQLException {
         for (int i = 0; i < players.length; i++) {
-            scores[i] = new Score(players[i].getId());
+            scores[i] = new Score(players[i].getId(), players[i].getName());
         }
         while (!isGameFinished()) {
             // Add scores for each player to the scores array
 
-            System.out.println("Current player: " + getCurrentPlayer().getName());
-            System.out.println("Current score for player with " + getCurrentPlayerScore());
-
-            System.out.println("Enter a command (h for help): ");
-            // Check if the user entered a valid command.
-            // If the user entered a valid command, handle the command.
-            // If the user entered an invalid command, print an error message.
-            if (scanner.hasNext()) {
-                String command = scanner.nextLine();
-                while (command.isEmpty()) {
-                    command = scanner.nextLine();
-                }
-                switch (command) {
-                    case "h" -> {
-                        System.out.println("Commands:");
-                        System.out.println("h: show help");
-                        System.out.println("q: quit");
-                        System.out.println("r: roll dice");
-                        System.out.println("s: print scores");
-                    }
-                    case "q" -> {
-                        System.out.println("Quitting...");
-                        stop();
-                    }
-                    case "r" -> {
-                        // This method should ask the user which dice he wants to roll.
-                        // The input can be empty, in which case all dice should be rolled.
-                        // The input can be a comma-separated list of dice numbers.
-
-                        // The user can roll the dice 3 times.
-                        // After each roll, the user should be asked which dice he wants to roll.
-                        // After the third roll, the user should be asked to select a category.
-                        // The user should be asked to select a category until he selects a valid category that is not already filled.
-                        System.out.println("Rolling dice...");
-                        gameBoard.rollAllDice();
-                        System.out.println(gameBoard);
-                        // While the user wants to roll the dice, roll the dice.
-                        label:
-                        {
-                            for (int i = 0; i < 2; i++) {
-                                // Ask the user if he wants to roll the dice again.
-                                // Keep asking until the user enters a valid answer.
-                                System.out.println("Do you want to roll the dice again? (y/n)");
-                                boolean validAnswer = false;
-                                while (!validAnswer) {
-                                    String rollAgain = scanner.nextLine();
-                                    if (rollAgain.equals("y")) {
-                                        // Roll the dice again.
-                                        validAnswer = true;
-                                    } else if (rollAgain.equals("n")) {
-                                        break label;
-                                    } else {
-                                        System.out.println("Invalid answer. Please enter 'y' or 'n'.");
-                                    }
-                                }
-
-                                // Ask the user which dice he wants to roll.
-                                System.out.println("Enter the dice you want to roll (empty for all): ");
-                                if (scanner.hasNext()) {
-                                    String diceToRoll = scanner.nextLine();
-                                    if (diceToRoll.isEmpty()) {
-                                        // Roll all dice.
-                                        gameBoard.rollAllDice();
-                                    } else {
-                                        // Roll the dice that the user entered.
-                                        String[] diceToRollArray = diceToRoll.replaceAll("\\s", "").split(",");
-                                        for (String dice : diceToRollArray) {
-                                            gameBoard.rollDie(Integer.parseInt(dice));
-                                        }
-                                    }
-                                }
-                                // Print the dice.
-                                System.out.println(gameBoard);
-                            }
-                        }
-                        // Print all categories and print the possible score for each category that is not already filled.
-                        // Print "-" for categories that are already filled.
-                        for (int i = 0; i < Category.values().length; i++) {
-                            System.out.println(i + 1 + ". " + Category.values()[i] + ": " + (getCurrentPlayerScore().getCategoryScore(Category.values()[i]) == -1 ? gameBoard.calculateScore(Category.values()[i]) : "-"));
-                        }
-                        // Ask the user to select a category.
-                        System.out.println("Select a category: ");
-                        // Check if the user entered a valid category.
-                        // If the user did not enter a valid category, ask the user again.
-                        boolean validCategory = false;
-                        while (!validCategory) {
-                            if (scanner.hasNext()) {
-                                int category = scanner.nextInt();
-                                if (category > 0 && category < Category.values().length + 1) {
-                                    // Check if the category is already filled.
-                                    // If the category is already filled, ask the user again.
-                                    if (getCurrentPlayerScore().getCategoryScore(Category.values()[category - 1]) == -1) {
-                                        // Calculate the score for the category.
-                                        int score = gameBoard.calculateScore(Category.values()[category - 1]);
-                                        // Set the score for the category.
-                                        getCurrentPlayerScore().setScorePerCategory(Category.values()[category - 1], score);
-                                        // Set the next player.
-                                        setNextPlayer();
-                                        if (score != -1) {
-                                            validCategory = true;
-                                            System.out.println("Score: " + score);
-                                        } else {
-                                            System.out.println("You did not score any points. Are you sure you want to select this category? (y/n)");
-                                            boolean validAnswer = false;
-                                            while (!validAnswer) {
-                                                String answer = scanner.nextLine();
-                                                if (answer.equals("y")) {
-                                                    // Set the score for the category.
-                                                    getCurrentPlayerScore().setScorePerCategory(Category.values()[category + 1], score);
-                                                    // Set the next player.
-                                                    setNextPlayer();
-                                                    validCategory = true;
-                                                    validAnswer = true;
-                                                } else if (answer.equals("n")) {
-                                                    // Ask the user to select a category.
-                                                    System.out.println("Select a category: ");
-                                                    validAnswer = true;
-                                                } else {
-                                                    System.out.println("Invalid answer. Please enter 'y' or 'n'.");
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        System.out.println("Category already filled.");
-                                        System.out.println("Select a category: ");
-                                    }
-                                } else {
-                                    System.out.println("Invalid category.");
-                                    System.out.println("Select a category: ");
-                                }
-                            }
-                        }
-                    }
-                    case "s" -> {
-                        System.out.println("Printing scores for player: " + getCurrentPlayer().getName());
-                        // Print the scores.
-                        for (Score score : scores) {
-                            if (score.getPlayerId() == getCurrentPlayer().getId()) {
-                                System.out.println(score);
-                            }
-                        }
-                    }
-                    default -> System.out.println("Invalid command.");
-                }
-            }
             System.out.println();
+            System.out.println("It's " + players[currentPlayerIndex].getName() + "'s turn.");
+
+            helpMenu();
+            askForCommand();
         }
+        for (Score score : scores) {
+            if (score.getGrandTotal() != 0) {
+                score.saveScore();
+            }
+        }
+        scores[0].stop();
+    }
+
+    private void askForCommand() throws SQLException {
+        System.out.println("Enter a command: ");
+        checkCommand(getInput());
+    }
+
+    private String getInput() {
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
+
+    private void checkCommand(String command) throws SQLException {
+        switch (command) {
+            case "q" -> {
+                System.out.println("Quitting...");
+                stop();
+            }
+            case "r" -> {
+                gameBoard.rollAllDice();
+                askToRollAgain:
+                {for (int i = 0; i < 2; i++) {
+                    // Ask the user if he wants to roll the dice again.
+                    // Keep asking until the user enters a valid answer.
+                    System.out.println("Do you want to roll the dice again? (y/n)");
+                    boolean validAnswer = false;
+                    while (!validAnswer) {
+                        String rollAgain = getInput();
+                        if (rollAgain.equals("y")) {
+                            // Roll the dice again.
+                            validAnswer = true;
+                            selectDice();
+                        } else if (rollAgain.equals("n")) {
+                            break askToRollAgain;
+                        } else {
+                            System.out.println("Invalid answer. Please enter 'y' or 'n'.");
+                        }
+                    }
+                }}
+                selectCategory();
+            }
+            case "s" -> {
+                System.out.printf("Score for %s:\n%s\n", getCurrentPlayer().getName(), getCurrentPlayerScore());
+            }
+            case "l" -> {
+                scores[0].getLeaderboard();
+                System.out.println();
+                System.out.println("Enter c to continue or the name of a player to see his/her score:");
+                String input = getInput();
+                if (!input.equals("c")) {
+                    scores[0].lookUpScore(input);
+                }
+
+            }
+            case "h" -> {
+                helpMenu();
+            }
+            default -> {
+                System.out.println("Invalid command.");
+                helpMenu();
+            }
+        }
+    }
+
+    private void selectDice() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the dice you want to roll (a for all): ");
+        if (scanner.hasNext()) {
+            String diceToRoll = scanner.nextLine();
+            if (diceToRoll.equals("a")) {
+                // Roll all dice.
+                gameBoard.rollAllDice();
+            } else {
+                // Roll the dice that the user entered.
+                String[] diceToRollArray = diceToRoll.replaceAll("\\s", "").split(",");
+                for (String dice : diceToRollArray) {
+                    if (dice.matches("[1-5]")) {
+                        gameBoard.rollDie(Integer.parseInt(dice));
+                    } else {
+                        System.out.println("Invalid dice.");
+                    }
+                }
+                System.out.println();
+                System.out.println(gameBoard);
+            }
+        }
+    }
+
+    private void selectCategory() {
+        // Print the categories.
+        for (int i = 0; i < Category.values().length; i++) {
+            System.out.println(i + 1 + ". " + Category.values()[i] + ": " + (getCurrentPlayerScore().getCategoryScore(Category.values()[i]) == -1 ? gameBoard.calculateScore(Category.values()[i]) : "-"));
+        }
+        // Ask the user to select a category.
+        System.out.println("Select a category: ");
+        selectCategory(getInput());
+    }
+
+    private void selectCategory(String cat) {
+        int category = Integer.parseInt(cat);
+        if (category > 0 && category < Category.values().length + 1) {
+            if (isCategoryFilled(category)) {
+                System.out.println("Category already filled.");
+                System.out.println("Please select a different category: ");
+                selectCategory(getInput());
+            } else {
+                // Calculate the score for the category.
+                int score = gameBoard.calculateScore(Category.values()[category - 1]);
+                if(isScoreZero(score)) {
+                    // Ask the user if he wants to select a different category.
+                    System.out.println("You did not score any points. Are you sure you want to select this category? (y/n)");
+                    boolean validAnswer = false;
+                    while (!validAnswer) {
+                        switch (getInput()) {
+                            case "y" -> {
+                                // Set the score for the category.
+                                getCurrentPlayerScore().setScorePerCategory(Category.values()[category - 1], score);
+                                // Set the next player.
+                                setNextPlayer();
+                                validAnswer = true;
+                            }
+                            case "n" -> {
+                                selectCategory();
+                            }
+                            default -> System.out.println("Invalid answer. Please enter 'y' or 'n'.");
+                        }
+                    }
+                }
+                // Set the score for the category.
+                getCurrentPlayerScore().setScorePerCategory(Category.values()[category - 1], score);
+                // Print the scores.
+                System.out.println();
+                System.out.println("Printing scores for player: " + getCurrentPlayer().getName());
+                for (Score s : scores) {
+                    if (s.getPlayerId() == getCurrentPlayer().getId()) {
+                        System.out.println(s);
+                    }
+                }
+                // Set the next player.
+                setNextPlayer();
+            }
+        }
+    }
+
+    private boolean isCategoryFilled(int category) {
+        return getCurrentPlayerScore().isScoreSet(category - 1);
+    }
+
+    private boolean isScoreZero(int score) {
+        return score == 0;
+    }
+
+    private void helpMenu() {
+        System.out.println();
+        System.out.println("Commands:");
+        System.out.println("r: Roll dice");
+        System.out.println("s: Show scores");
+        System.out.println("l: Show leaderboard");
+        System.out.println("q: Quit");
     }
 
     private void setNextPlayer() {
@@ -219,7 +235,7 @@ public class Game {
         return null;
     }
 
-    private void stop() {
+    private void stop() throws SQLException {
         // This method should end the game.
         // It should print the final scores.
         // It should ask the user if he wants to play another game.
@@ -227,6 +243,7 @@ public class Game {
         // If the user doesn't want to play another game, it should quit the application.
         System.out.println("Final scores:");
         for (Score score : scores) {
+            System.out.println();
             System.out.println(score);
         }
         // Make isGameFinished() return true.
@@ -268,6 +285,8 @@ public class Game {
             for (Die die : dice) {
                 die.roll();
             }
+            System.out.println();
+            System.out.println(this);
         }
 
         private void rollDie(int diceNumber) {

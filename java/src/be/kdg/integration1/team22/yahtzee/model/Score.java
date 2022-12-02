@@ -217,8 +217,7 @@ public class Score {
                 pstmt.setString(1, input);
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
-                    System.out.println(rs.getInt("id") + "\t" +
-                            rs.getString("player_name") + "\t" +
+                    System.out.println(rs.getString("player_name") + "\t" +
                             rs.getInt("grand_total") + "\t" +
                             rs.getDate("date") + "\t" +
                             rs.getTime("time"));
@@ -236,8 +235,7 @@ public class Score {
                 Statement stmt = db.createStatement();
                 ResultSet rs = stmt.executeQuery(sql);
                 while (rs.next()) {
-                    System.out.println(rs.getInt("id") + "\t" +
-                            rs.getString("player_name") + "\t" +
+                    System.out.println(rs.getString("player_name") + "\t" +
                             rs.getInt("grand_total") + "\t" +
                             rs.getDate("date") + "\t" +
                             rs.getTime("time"));
